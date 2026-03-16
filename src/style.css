@@ -1,0 +1,90 @@
+/* --- APP.CSS --- */
+
+:root {
+  --primary-maroon: #5d0c0c;
+  --gold-accent: #d4af37;
+  --page-cream: #fdfaf5;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #000; /* Deep black to hide any edge bleeding */
+  font-family: Georgia, serif;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #000;
+}
+
+.album-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* THE FIX: Remove the blurring shadow from the wrapper which mimics a reflection */
+.album-wrapper::after {
+  display: none; 
+}
+
+.book-3d {
+  /* PERSPECTIVE FIX: 
+     Setting the origin to -20% (above the book) prevents the 'downward dip' 
+     that creates the reflection illusion. */
+  perspective: 3000px;
+  perspective-origin: 50% -20%; 
+  transform-style: preserve-3d;
+}
+
+.wedding-book {
+  /* Use a sharp shadow instead of a blurry one to avoid 'glow' reflections */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+  background: transparent !important;
+}
+
+/* THE NUCLEAR OPTION: 
+   The library often creates a canvas or div with class 'stf__block' 
+   or 'stf__shadow'. We force hide these. */
+.stf__shadow, 
+.stf__outerShadow, 
+.stf__innerShadow {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.page {
+  background: white;
+  overflow: hidden;
+  /* Ensure the underside of the page is totally invisible */
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  transform-style: flat !important; /* Forces the page content to stay flat */
+}
+
+.full-page-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Prevents any image 'bleeding' past the rounded corners */
+  display: block;
+}
+
+/* This is the caption - simplified to avoid heavy gradients */
+.image-overlay-caption {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px 0;
+  font-size: 0.9rem;
+}
+
+/* ... (Button and Slider styles from previous versions) ... */
