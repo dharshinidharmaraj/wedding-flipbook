@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import HTMLPageFlip from "react-pageflip";
 
 function App() {
@@ -15,6 +15,33 @@ function App() {
   ];
 
   const [page, setPage] = useState(0);
+  const [bookSize, setBookSize] = useState({ width: 500, height: 600 });
+
+  // 📱 Responsive sizing
+  useEffect(() => {
+    const updateSize = () => {
+      const screenWidth = window.innerWidth;
+
+      if (screenWidth < 600) {
+        // Mobile (landscape feel)
+        setBookSize({
+          width: screenWidth * 0.95,
+          height: screenWidth * 0.6,
+        });
+      } else {
+        // Desktop
+        setBookSize({
+          width: 800,
+          height: 800,
+        });
+      }
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   const handleSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     const pageNum = Number(e.target.value);
@@ -30,59 +57,54 @@ function App() {
     <div className="app-container">
       <div className="album-wrapper">
         <div className="book-3d">
+          </div>
+         
+
           {/* @ts-ignore */}
-          <HTMLPageFlip
-            width={500}
-            height={600}
-            size="stretch"
-            minWidth={315}
-            maxWidth={1000}
-            minHeight={400}
-            maxHeight={1533}
-            showCover={true}
-            usePortrait={false}
-            startPage={0}
-            flippingTime={800} // Slightly faster for smoother visuals
-            
-            /* THE REFLECTION KILLERS */
-            drawShadow={false}
-            maxShadowOpacity={0}
-            showPageCorners={false} // Prevents the 'dog-ear' shadow reflection
-            mobileScrollSupport={true}
-            clickEventForward={true}
-            
-            ref={book}
-            className="wedding-book"
-            onFlip={handlePageFlip}
-          >
-            {/* Cover Page */}
+
+         <HTMLPageFlip
+  width={bookSize.width}
+  height={bookSize.height}
+  size="fixed"
+
+  showCover={true}
+  startPage={0}
+
+  flippingTime={500}
+
+  drawShadow={false}
+  maxShadowOpacity={0}
+  showPageCorners={false}
+
+  usePortrait={false} // 🔥 THIS ENABLES TWO PAGES
+
+  mobileScrollSupport={true}
+  clickEventForward={true}
+
+  ref={book}
+  className="wedding-book"
+  onFlip={handlePageFlip}
+>
+            {/* Cover */}
             <div className="page page-cover">
-              <img
-                src={albumPhotos[0]}
-                alt="Cover"
-                className="full-page-img"
-              />
+              <img src={albumPhotos[0]} alt="Cover" className="full-page-img" />
               <div className="cover-text-overlay">
                 <h2>Our Wedding</h2>
                 <p>The Beginning</p>
               </div>
             </div>
 
-            {/* Photo Pages */}
+            {/* Photos */}
             {albumPhotos.slice(1).map((url, index) => (
               <div className="page" key={index}>
-                <img
-                  src={url}
-                  alt={`Wedding ${index}`}
-                  className="full-page-img"
-                />
+                <img src={url} alt={`Wedding ${index}`} className="full-page-img" />
                 <div className="image-overlay-caption">
                   Sweet Moments
                 </div>
               </div>
             ))}
 
-            {/* Final Page */}
+            {/* End */}
             <div className="page page-blank">
               <div className="page-content">
                 <h3>Happy Ending</h3>
@@ -95,10 +117,10 @@ function App() {
         <div className="controls">
           <div className="nav-controls">
             <button onClick={() => book.current?.pageFlip()?.flipPrev()}>
-              Previous
+              ⬅
             </button>
             <button onClick={() => book.current?.pageFlip()?.flipNext()}>
-              Next
+              ➡
             </button>
           </div>
 
@@ -106,14 +128,14 @@ function App() {
             <input
               type="range"
               min="0"
-              max={albumPhotos.length}
+              max={albumPhotos.length + 1}
               value={page}
               onChange={handleSlider}
             />
           </div>
         </div>
       </div>
-    </div>
+    
   );
 }
 
