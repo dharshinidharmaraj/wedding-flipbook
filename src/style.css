@@ -9,35 +9,50 @@ body {
   padding: 0;
   background: #000;
   font-family: Georgia, serif;
+  overflow-x: hidden;
 }
 
+/* App Container - Full screen */
 .app-container {
+  width: 100vw;
+  height: 100vh;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 90vh;
 
-  /* 🔥 Force landscape feel */
-  flex-direction: row;
+  overflow: hidden;
+  position: relative;
 }
 
 /* Wrapper */
 .album-wrapper {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  position: relative;
 }
 
-/* 3D */
+/* 3D Book Perspective */
 .book-3d {
   perspective: 2000px;
   width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
+/* Wedding Book */
 .wedding-book {
-  transform: none !important;
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  max-height: 800px;
+  margin: auto;
 }
 
 /* Remove shadows */
@@ -49,17 +64,18 @@ body {
 
 /* Pages */
 .page {
-  border-right: 1px solid rgba(0,0,0,0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
-
+/* Images */
 .full-page-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* Overlay */
+/* Overlay Captions */
 .image-overlay-caption {
   position: absolute;
   bottom: 0;
@@ -71,7 +87,7 @@ body {
   font-size: 0.85rem;
 }
 
-/* Cover */
+/* Cover Overlay */
 .cover-text-overlay {
   position: absolute;
   bottom: 20px;
@@ -84,6 +100,9 @@ body {
 .controls {
   margin-top: 10px;
   width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .nav-controls {
@@ -99,6 +118,8 @@ body {
   color: white;
   border: none;
   border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .nav-controls button:hover {
@@ -115,18 +136,36 @@ body {
   width: 100%;
 }
 
-/* 📱 MOBILE LANDSCAPE OPTIMIZATION */
-@media (max-width: 600px) {
+/* 📱 MOBILE OPTIMIZATION */
+@media (max-width: 768px) {
   .app-container {
     flex-direction: column;
   }
 
   .book-3d {
-     perspective: none !important;
+    perspective: none !important;
+  }
+
+  .wedding-book {
+    max-width: 95%;
+    max-height: 70vh;
   }
 
   .nav-controls button {
     font-size: 0.8rem;
     padding: 6px 10px;
+  }
+
+  .image-overlay-caption {
+    font-size: 0.7rem;
+    padding: 5px;
+  }
+
+  .cover-text-overlay h2 {
+    font-size: 1rem;
+  }
+
+  .cover-text-overlay p {
+    font-size: 0.8rem;
   }
 }
