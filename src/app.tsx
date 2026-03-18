@@ -61,19 +61,17 @@ function App() {
 
         {/* @ts-ignore */}
         <HTMLPageFlip
-  width={300}
-  height={400}
-
-  size="stretch"   // ✅ THIS is key
-
+  width={bookSize.width}     // optional, can remove
+  height={bookSize.height}   // optional, can remove
+  size="stretch"             // THIS is key for full-screen
   minWidth={300}
   maxWidth={1200}
   minHeight={400}
   maxHeight={800}
-
   showCover={true}
-  usePortrait={isMobile}
-
+  usePortrait={isMobile}     // 1-page mobile, 2-page desktop
+  mobileScrollSupport={true}
+  clickEventForward={true}
   ref={book}
   className="wedding-book"
   onFlip={handlePageFlip}
