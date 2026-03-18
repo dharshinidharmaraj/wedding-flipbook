@@ -1,8 +1,10 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import HTMLPageFlip from "react-pageflip";
 
 function App() {
   const book = useRef<any>(null);
+  const [page, setPage] = useState(0);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const albumPhotos = [
     "/cover.jpg",
@@ -13,73 +15,85 @@ function App() {
     "/photos/5.jpg",
   ];
 
-  const [page, setPage] = useState(0);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  // Update on resize
+  // Update mobile state on resize
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const pageNum = Number(e.target.value);
-    setPage(pageNum);
-    book.current?.pageFlip()?.flip(pageNum);
-  };
-
-  const handlePageFlip = (e: any) => setPage(e.data);
+  const onFlip = useCallback((e: any) => {
+    setPage(e.data);
+  }, []);
 
   return (
     <div className="app-container">
       <div className="album-wrapper">
         {/* @ts-ignore */}
         <HTMLPageFlip
-          size="stretch"          // Important for full screen
-          width={isMobile ? window.innerWidth : 1200}  // control max width
-          height={isMobile ? window.innerHeight : 600} // control height
-          minWidth={300}
-          maxWidth={1200}
+          width={isMobile ? 350 : 550}
+          height={isMobile ? 500 : 733}
+          size="stretch"
+          minWidth={280}
+          maxWidth={1000}
           minHeight={400}
-          maxHeight={800}
+          maxHeight={1200}
           showCover={true}
-          usePortrait={isMobile}  // 1-page mobile, 2-page desktop
-          mobileScrollSupport={true}
-          clickEventForward={true}
-          ref={book}
+          usePortrait={isMobile}
+          flippingTime={800}
           className="wedding-book"
-          onFlip={handlePageFlip}
+          onFlip={onFlip}
+          ref={book}
         >
           {/* Cover */}
-          <div className="page page-cover">
-            <img src={albumPhotos[0]} alt="Cover" className="full-page-img" />
+          <div className="page page-cover" data-density="hard">
+            <div className="page-content">
+              <img src={albumPhotos[0]} alt="Cover" className="full-page-img" />
+              <div className="cover-text">
+                <h2>Our Wedding</h2>
+                <p>The Beginning</p>
+              </div>
+            </div>
           </div>
 
-          {/* Photos */}
+          {/* Photo Pages */}
           {albumPhotos.slice(1).map((url, index) => (
             <div className="page" key={index}>
-              <img src={url} alt={`Wedding ${index}`} className="full-page-img" />
+              <div className="page-content">
+                <img src={url} alt={`Photo ${index}`} className="full-page-img" />
+                <div className="caption">Sweet Moments</div>
+              </div>
             </div>
           ))}
-        </HTMLPageFlip>
 
-        {/* Controls */}
-        <div className="controls">
-          <div className="nav-controls">
-            <button onClick={() => book.current?.pageFlip()?.flipPrev()}>⬅</button>
-            <button onClick={() => book.current?.pageFlip()?.flipNext()}>➡</button>
+          {/* Last Page */}
+          <div className="page page-back" data-density="hard">
+            <div className="page-content">
+              <h3>The End</h3>
+            </div>
           </div>
-          <div className="slider-container">
-            <input
-              type="range"
-              min={0}
-              max={albumPhotos.length - 1}
-              value={page}
-              onChange={handleSlider}
-            />
-          </div>
+        </HTMLPageFlip>
+      </div>
+
+      <div className="controls-container">
+        <div className="nav-buttons">
+          <button onClick={() => book.current?.pageFlip()?.flipPrev()}>Prev</button>
+          <span>Page {page + 1}</span>
+          <button onClick={() => book.current?.pageFlip()?.flipNext()}>Next</button>
         </div>
+        <input
+          type="range"
+          min="0"
+          max={albumPhotos.length + 1}
+          value={page}
+          onChange={(e) => {
+            const val = parseInt(e.target.value);
+            book.current?.pageFlip()?.flip(val);
+          }}
+          className="page-slider"
+        />
       </div>
     </div>
   );

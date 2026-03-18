@@ -1,135 +1,177 @@
 :root {
-  --primary-maroon: #5d0c0c;
+  --primary-maroon: #4a0606;
   --gold-accent: #d4af37;
+  --page-bg: #fffdfa; /* Slightly off-white for a paper feel */
+  --shadow-color: rgba(0, 0, 0, 0.4);
 }
 
-/* Base */
+/* Reset and Base */
 body {
   margin: 0;
   padding: 0;
-  background: #000;
-  font-family: Georgia, serif;
-  overflow-x: hidden;
+  background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+  font-family: "Georgia", serif;
+  overflow: hidden; /* Prevents unwanted scrolling during flips */
+  height: 100vh;
 }
 
-/* App Container - Full screen */
-/* Container - full viewport */
 /* Full-screen container */
 .app-container {
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
 }
 
 .album-wrapper {
-  width: 100%;
-  height: 100%;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: calc(100% - 120px); /* Leave space for controls */
+  perspective: 2000px;
 }
 
+/* PageFlip Component Styling */
 .wedding-book {
+  box-shadow: 0 20px 50px var(--shadow-color);
+  background-color: var(--primary-maroon);
+}
+
+/* Individual Page Styling */
+.page {
+  background-color: var(--page-bg);
+  overflow: hidden;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.05);
+}
+
+.page-content {
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
-/* Pages */
 .full-page-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
-/* Controls */
-.controls {
+/* Overlays & Captions */
+.cover-text-overlay {
   position: absolute;
-  bottom: 10px;
-  width: 90%;
+  bottom: 20%;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: white;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 20px 0;
+  backdrop-filter: blur(5px);
+}
+
+.image-overlay-caption {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  color: white;
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Controls - Positioned at Bottom */
+.controls {
+  height: 120px;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
+  background: rgba(0, 0, 0, 0.8);
+  border-top: 1px solid #333;
+  z-index: 10;
 }
 
 .nav-controls {
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 10px;
 }
 
 .nav-controls button {
-  padding: 8px 14px;
-  font-size: 1rem;
-  background: #5d0c0c;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  background: transparent;
+  border: 1px solid var(--gold-accent);
+  color: var(--gold-accent);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
   cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-controls button:hover {
-  background: #d4af37;
+  background: var(--gold-accent);
   color: black;
 }
 
 .slider-container {
-  width: 100%;
-  margin-top: 10px;
+  width: 80%;
+  max-width: 500px;
 }
 
-.slider-container input {
+/* Slider Custom Styling */
+input[type="range"] {
+  -webkit-appearance: none;
   width: 100%;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
 }
 
-/* Mobile adjustments */
-@media (max-width: 768px) {
-  .nav-controls button {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-  }
-}
-.slider-container {
-  margin-top: 10px;
-  width: 100%;
-}
-
-.slider-container input {
-  width: 100%;
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: var(--gold-accent);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
 /* 📱 MOBILE OPTIMIZATION */
 @media (max-width: 768px) {
-  .app-container {
-    flex-direction: column;
-  }
-
-  .book-3d {
-    perspective: none !important;
+  .album-wrapper {
+    height: calc(100% - 150px);
+    padding: 10px;
   }
 
   .wedding-book {
-    max-width: 95%;
-    max-height: 70vh;
-  }
-
-  .nav-controls button {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-  }
-
-  .image-overlay-caption {
-    font-size: 0.7rem;
-    padding: 5px;
+    /* Ensures the book doesn't touch screen edges */
+    max-width: 90vw !important;
+    max-height: 65vh !important;
   }
 
   .cover-text-overlay h2 {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 
-  .cover-text-overlay p {
-    font-size: 0.8rem;
+  .image-overlay-caption {
+    font-size: 0.75rem;
+    padding: 10px;
+  }
+
+  .nav-controls {
+    gap: 15px;
   }
 }
