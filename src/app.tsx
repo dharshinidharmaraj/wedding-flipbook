@@ -2,17 +2,13 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import HTMLPageFlip from "react-pageflip";
 import { motion, Variants, HTMLMotionProps } from "framer-motion";
 
-// ✅ Inherit all motion and HTML attributes
 const MotionDiv: React.FC<HTMLMotionProps<"div">> = (props) => {
   return <motion.div {...props}>{props.children}</motion.div>;
 };
 
 function App() {
   const book = useRef<any>(null);
-
-  // States
-  const [activeIndex, setActiveIndex] = useState(20);
-  const [isMobile, setIsMobile] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [showIntro, setShowIntro] = useState(true);
   const [isSetup, setIsSetup] = useState(true);
   const [brideName, setBrideName] = useState("");
@@ -20,15 +16,13 @@ function App() {
   const [useLocalAudio, setUseLocalAudio] = useState(true);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [showSpotify, setShowSpotify] = useState(false);
- 
-  // Update isMobile on window resize
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const [zoomEnabled, setZoomEnabled] = useState(false);
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
 
+  const audioRef = useRef<HTMLAudioElement>(null);
   const spotifyAssetId = "37i9dQZF1DX4H6y8vBnqXf";
   const localAudioSrc = "/music/song.mp3";
 
@@ -41,15 +35,11 @@ function App() {
     "/photos/5.jpg",
   ];
 
+  // Update dimensions on resize
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
+    const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const onFlip = useCallback((e: any) => {
-    // page state logic
   }, []);
 
   const containerVariants: Variants = {
@@ -62,55 +52,20 @@ function App() {
     visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  // ============================
-  // ✅ MOBILE OPTIMIZED BOOK OPTIONS
-  // ============================
-  const bookOptions = {
-    width: isMobile ? 320 : 550,
-    height: isMobile ? 480 : 733,
-    size: "stretch" as const,
-    minWidth: 300,
-    maxWidth: 1000,
-    minHeight: 400,
-    maxHeight: 1350,
-    showCover: true,
-    usePortrait: isMobile,
-    flippingTime: 800,
-    autoSize: true,
-    startPage: 0,
-    drawShadow: true,
-    mobileScrollSupport: false, // Prevents browser scroll interference
-    clickEventForward: true,    // Ensures buttons/clicks still work
-    useMouseEvents: true,       // Essential for grabbing on touch screens
-    swipeDistance: 30,          // Sensitivity of the "grabbing" flip
-  };
-
   if (isSetup) {
     return (
       <div style={centerScreen}>
         <div style={setupCard}>
           <h2 style={{ color: "#FFD700", marginBottom: "20px" }}>Personalize Your Album</h2>
-          <input
-            placeholder="Groom Name"
-            value={groomName}
-            onChange={(e) => setGroomName(e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            placeholder="Bride Name"
-            value={brideName}
-            onChange={(e) => setBrideName(e.target.value)}
-            style={inputStyle}
-          />
-          <div style={{ marginTop: "10px" }}>
-            <button
-              onClick={() => setIsSetup(false)}
-              disabled={!brideName || !groomName}
-              style={{ ...buttonStyle, opacity: (!brideName || !groomName) ? 0.5 : 1 }}
-            >
-              Enter Album
-            </button>
-          </div>
+          <input placeholder="Groom Name" value={groomName} onChange={(e) => setGroomName(e.target.value)} style={inputStyle} />
+          <input placeholder="Bride Name" value={brideName} onChange={(e) => setBrideName(e.target.value)} style={inputStyle} />
+          <button
+            onClick={() => setIsSetup(false)}
+            disabled={!brideName || !groomName}
+            style={{ ...buttonStyle, marginTop: "20px", opacity: (!brideName || !groomName) ? 0.5 : 1 }}
+          >
+            Enter Album
+          </button>
         </div>
       </div>
     );
@@ -121,12 +76,11 @@ function App() {
       <MotionDiv
         initial={{ opacity: 1 }}
         animate={{ opacity: 0 }}
-        transition={{ duration: 2, delay: 2 }}
+        transition={{ duration: 1, delay: 2 }}
         onAnimationComplete={() => setShowIntro(false)}
         style={centerScreen}
       >
         <h1 style={titleStyle}>{groomName} & {brideName}</h1>
-        <p style={{ color: "white", marginTop: "10px" }}>A story written in moments...</p>
       </MotionDiv>
     );
   }
@@ -145,139 +99,100 @@ function App() {
     }
   };
 
-  return (
-    <div style={{ background: "#0A192F", minHeight: "100vh", textAlign: "center", overflowX: "hidden" }}>
-      <div style={{ padding: "15px" }}>
-        <button onClick={toggleAudio} style={{ ...buttonStyle, borderRadius: "25px" }}>
-          {useLocalAudio ? (audioPlaying ? "Stop Music" : "Play Music") : showSpotify ? "Stop Spotify" : "Play Spotify"}
-        </button>
+  const zoomAnimation = zoomEnabled
+    ? { scale: [1, 1.1, 1], transition: { duration: 8, repeat: Infinity, repeatType: "loop", ease: "easeInOut" } }
+    : { scale: 1 };
 
-        <button
-          onClick={() => setUseLocalAudio(!useLocalAudio)}
-          style={{ ...buttonStyle, marginLeft: "10px", borderRadius: "25px", background: "#64FFDA", color: "#0A192F" }}
-        >
-          {useLocalAudio ? "Switch to Spotify" : "Switch to Local"}
+  return (
+    <div style={{ background: "#000", width: "100vw", height: "100vh", position: "fixed", overflow: "hidden" }}>
+      
+      {/* UI Buttons */}
+      <div style={uiOverlayStyle}>
+        <button onClick={toggleAudio} style={pillButton}>
+          {useLocalAudio ? (audioPlaying ? "Stop Music" : "Play Music") : "Spotify"}
+        </button>
+        <button onClick={() => setUseLocalAudio(!useLocalAudio)} style={{ ...pillButton, background: "#64FFDA" }}>
+          Switch Source
+        </button>
+        <button onClick={() => setZoomEnabled(!zoomEnabled)} style={{ ...pillButton, background: zoomEnabled ? "#FFD700" : "#64FFDA" }}>
+          {zoomEnabled ? "Stop Zoom" : "Zoom Photos"}
         </button>
       </div>
 
-      {useLocalAudio && <audio ref={audioRef} src={localAudioSrc} loop />}
-      {!useLocalAudio && showSpotify && (
-        <MotionDiv initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginBottom: "20px" }}>
-          <iframe
-            title="Spotify"
-            src={`https://open.spotify.com/embed/playlist/${spotifyAssetId}`}
-            width={isMobile ? "90%" : "350px"}
-            height="80"
-            frameBorder="0"
-            style={{ borderRadius: "12px", margin: "0 auto" }}
-            allow="encrypted-media"
-          />
-        </MotionDiv>
-      )}
+      <button onClick={() => book.current?.pageFlip()?.flipPrev()} style={navBtnLeft}>❮</button>
+      <button onClick={() => book.current?.pageFlip()?.flipNext()} style={navBtnRight}>❯</button>
 
-      {/* BOOK CONTAINER */}
-      <div 
-        style={{ 
-          display: "flex", 
-          justifyContent: "center", 
-          padding: isMobile ? "10px" : "20px",
-          touchAction: "none", // 👈 CRITICAL: Stops mobile browser from scrolling while grabbing pages
-          userSelect: "none"
-        }}
-      >
-        {/* @ts-ignore */}
-        <HTMLPageFlip {...bookOptions} ref={book} onFlip={onFlip}>
-          
-          {/* COVER PAGE */}
-          <div className="page" style={{ position: "relative", backgroundColor: "#112240", overflow: "hidden" }}>
-            <MotionDiv
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(8, 1fr)",
-                gridTemplateRows: "repeat(8, 1fr)",
-                gap: isMobile ? "2px" : "4px",
-                padding: "8px",
-                height: "100%",
-              }}
-            >
+      {useLocalAudio && <audio ref={audioRef} src={localAudioSrc} loop />}
+
+      {/* Fullscreen Flipbook */}
+      <div style={fullscreenWrapper}>
+        <HTMLPageFlip
+          width={dimensions.width}
+          height={dimensions.height}
+          size="stretch"
+          minWidth={dimensions.width}
+          maxWidth={dimensions.width}
+          minHeight={dimensions.height}
+          maxHeight={dimensions.height}
+          showCover={true}
+          useMouseEvents={true}
+          flippingTime={1000}
+          ref={book}
+        >
+          {/* COVER GRID */}
+          <div className="page" style={fullPage}>
+            <MotionDiv variants={containerVariants} initial="hidden" animate="visible" style={gridStyle}>
               {Array.from({ length: 64 }).map((_, i) => (
                 <MotionDiv
                   key={i}
                   variants={itemVariants}
-                  animate={{
-                    scale: i === activeIndex ? 1.1 : 1,
-                    filter: i === activeIndex ? "grayscale(0%)" : "grayscale(100%)",
-                  }}
-                  style={{
-                    backgroundImage: `url(${albumPhotos[i % albumPhotos.length]})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
+                  animate={zoomAnimation}
+                  style={{ backgroundImage: `url(${albumPhotos[i % albumPhotos.length]})`, backgroundSize: "cover", backgroundPosition: "center" }}
                   onClick={() => setActiveIndex(i)}
                 />
               ))}
             </MotionDiv>
-            <div style={overlayStyle} />
-            <div style={centerAbsolute}>
-              <MotionDiv initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }}>
-                <h1 style={titleStyle}>{groomName} & {brideName}</h1>
-              </MotionDiv>
+            <div style={titleOverlay}>
+              <h1 style={titleStyle}>{groomName} & {brideName}</h1>
             </div>
           </div>
 
           {/* PHOTO PAGES */}
           {albumPhotos.slice(1).map((url, i) => (
-            <div key={i} className="page" style={{ backgroundColor: "#fff", overflow: "hidden" }}>
-              <img 
-                src={url} 
-                alt={`Album page ${i}`} 
-                style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} 
-              />
+            <div key={i} className="page" style={fullPage}>
+              <motion.img src={url} alt="" style={fullImage} animate={zoomAnimation} />
             </div>
           ))}
 
-          {/* END PAGE */}
-          <div className="page" style={endPage}>
-            <MotionDiv initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}>
-              <h2 style={endTitle}>Forever Together</h2>
-            </MotionDiv>
-            <MotionDiv initial={{ width: 0 }} whileInView={{ width: "60px" }} style={divider} />
-            <p style={{ color: "white" }}>{groomName} & {brideName}</p>
-            <button 
-              onClick={() => book.current?.pageFlip()?.flip(0)} 
-              style={{ ...buttonStyle, marginTop: "20px", borderRadius: "5px" }}
-            >
-              Replay
-            </button>
+          {/* FINAL PAGE */}
+          <div className="page" style={endPageStyle}>
+            <h2 style={{ color: "#FFD700", fontSize: "3rem" }}>Forever</h2>
+            <button onClick={() => book.current?.pageFlip()?.flip(0)} style={buttonStyle}>Replay</button>
           </div>
         </HTMLPageFlip>
-      </div>
-
-      {/* NAV BUTTONS */}
-      <div style={{ paddingBottom: "40px" }}>
-        <button onClick={() => book.current?.pageFlip()?.flipPrev()} style={navBtn}>Prev</button>
-        <button onClick={() => book.current?.pageFlip()?.flipNext()} style={navBtn}>Next</button>
       </div>
     </div>
   );
 }
 
 // ============================
-// STYLES (Unchanged)
+// STYLES
 // ============================
+const fullscreenWrapper: React.CSSProperties = { width: "100%", height: "100%", position: "absolute", top: 0, left: 0 };
+const fullPage: React.CSSProperties = { width: "100%", height: "100%", overflow: "hidden", position: "relative", backgroundColor: "#0A192F" };
+const fullImage: React.CSSProperties = { width: "100%", height: "100%", objectFit: "contain", display: "block" };
+const gridStyle: React.CSSProperties = { display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gridTemplateRows: "repeat(8, 1fr)", height: "100%", width: "100%" };
+const uiOverlayStyle: React.CSSProperties = { position: "absolute", top: "30px", left: "30px", zIndex: 100, display: "flex", gap: "10px" };
+const titleOverlay: React.CSSProperties = { position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "center", background: "rgba(0,0,0,0.3)", pointerEvents: "none" };
+const navBtn: React.CSSProperties = { position: "absolute", top: "50%", transform: "translateY(-50%)", zIndex: 100, background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "20px", cursor: "pointer", fontSize: "2rem", borderRadius: "50%" };
+const navBtnLeft: React.CSSProperties = { ...navBtn, left: "20px" };
+const navBtnRight: React.CSSProperties = { ...navBtn, right: "20px" };
 const centerScreen: React.CSSProperties = { height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", background: "#0A192F", color: "white" };
-const setupCard: React.CSSProperties = { background: "#112240", padding: "40px", borderRadius: "15px", boxShadow: "0 10px 30px rgba(0,0,0,0.5)" };
-const inputStyle: React.CSSProperties = { padding: "12px", margin: "10px", width: "240px", borderRadius: "5px", border: "1px solid #64FFDA", background: "#0A192F", color: "white" };
-const buttonStyle: React.CSSProperties = { padding: "10px 25px", background: "#FFD700", color: "#0A192F", border: "none", fontWeight: "bold", cursor: "pointer", transition: "all 0.3s ease" };
-const overlayStyle: React.CSSProperties = { position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", pointerEvents: "none" };
-const centerAbsolute: React.CSSProperties = { position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "center", pointerEvents: "none" };
-const titleStyle: React.CSSProperties = { fontSize: "clamp(1.5rem, 6vw, 2.5rem)", color: "#FFD700", textAlign: "center", textShadow: "2px 2px 4px rgba(0,0,0,0.5)" };
-const endPage: React.CSSProperties = { background: "#0A192F", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100%" };
-const endTitle: React.CSSProperties = { fontSize: "2rem", color: "#FFD700" };
-const divider: React.CSSProperties = { height: "2px", background: "#FFD700", margin: "15px 0" };
-const navBtn: React.CSSProperties = { padding: "10px 20px", margin: "0 10px", borderRadius: "20px", background: "#112240", color: "#64FFDA", border: "1px solid #64FFDA", cursor: "pointer" };
+const setupCard: React.CSSProperties = { background: "#112240", padding: "40px", borderRadius: "15px", textAlign: "center" };
+const inputStyle: React.CSSProperties = { padding: "12px", margin: "10px", width: "240px", borderRadius: "5px", border: "1px solid #64FFDA", background: "#0A192F", color: "white", display: "block" };
+const buttonStyle: React.CSSProperties = { padding: "10px 25px", background: "#FFD700", color: "#0A192F", border: "none", fontWeight: "bold", cursor: "pointer" };
+const pillButton: React.CSSProperties = { ...buttonStyle, borderRadius: "25px" };
+const titleStyle: React.CSSProperties = { fontSize: "clamp(2rem, 10vw, 5rem)", color: "#FFD700", textShadow: "4px 4px 8px rgba(0,0,0,0.8)" };
+const endPageStyle: React.CSSProperties = { ...fullPage, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" };
 
 export default App;
