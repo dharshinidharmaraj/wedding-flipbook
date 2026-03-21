@@ -20,7 +20,13 @@ function App() {
   const [useLocalAudio, setUseLocalAudio] = useState(true);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [showSpotify, setShowSpotify] = useState(false);
-
+ 
+  // Update isMobile on window resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const spotifyAssetId = "37i9dQZF1DX4H6y8vBnqXf";
