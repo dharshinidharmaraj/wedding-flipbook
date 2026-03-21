@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import HTMLPageFlip from "react-pageflip";
-import { motion, Variants, HTMLMotionProps } from "framer-motion";
+import { motion } from "framer-motion";
 
-const MotionDiv: React.FC<HTMLMotionProps<"div">> = (props) => {
+
+const MotionDiv: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => {
   return <motion.div {...props}>{props.children}</motion.div>;
 };
 
