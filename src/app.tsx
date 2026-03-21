@@ -2,14 +2,11 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import HTMLPageFlip from "react-pageflip";
 import { motion, Variants, HTMLMotionProps } from "framer-motion";
 
-// ✅ The fix: Use HTMLMotionProps<"div"> to inherit all motion and HTML attributes
+// ✅ Inherit all motion and HTML attributes
 const MotionDiv: React.FC<HTMLMotionProps<"div">> = (props) => {
   return <motion.div {...props}>{props.children}</motion.div>;
 };
 
-// ============================
-// Main App
-// ============================
 function App() {
   const book = useRef<any>(null);
 
@@ -24,10 +21,8 @@ function App() {
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [showSpotify, setShowSpotify] = useState(false);
 
-  // Refs
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Constants
   const spotifyAssetId = "37i9dQZF1DX4H6y8vBnqXf";
   const localAudioSrc = "/music/song.mp3";
 
@@ -40,9 +35,6 @@ function App() {
     "/photos/5.jpg",
   ];
 
-  // ============================
-  // Responsive
-  // ============================
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -50,16 +42,10 @@ function App() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ============================
-  // Flip event
-  // ============================
   const onFlip = useCallback((e: any) => {
-    // page state was defined but not heavily used, removing for brevity
+    // page state logic
   }, []);
 
-  // ============================
-  // Animations
-  // ============================
   const containerVariants: Variants = {
     hidden: {},
     visible: { transition: { staggerChildren: 0.04 } },
@@ -71,12 +57,12 @@ function App() {
   };
 
   // ============================
-  // Book options
+  // ✅ MOBILE OPTIMIZED BOOK OPTIONS
   // ============================
   const bookOptions = {
     width: isMobile ? 320 : 550,
     height: isMobile ? 480 : 733,
-    size: "stretch" as const, // Cast to literal for TS
+    size: "stretch" as const,
     minWidth: 300,
     maxWidth: 1000,
     minHeight: 400,
@@ -87,12 +73,12 @@ function App() {
     autoSize: true,
     startPage: 0,
     drawShadow: true,
-    mobileScrollSupport: true,
+    mobileScrollSupport: false, // Prevents browser scroll interference
+    clickEventForward: true,    // Ensures buttons/clicks still work
+    useMouseEvents: true,       // Essential for grabbing on touch screens
+    swipeDistance: 30,          // Sensitivity of the "grabbing" flip
   };
 
-  // ============================
-  // Setup screen logic
-  // ============================
   if (isSetup) {
     return (
       <div style={centerScreen}>
@@ -124,9 +110,6 @@ function App() {
     );
   }
 
-  // ============================
-  // Intro screen logic
-  // ============================
   if (showIntro) {
     return (
       <MotionDiv
@@ -158,7 +141,6 @@ function App() {
 
   return (
     <div style={{ background: "#0A192F", minHeight: "100vh", textAlign: "center", overflowX: "hidden" }}>
-      {/* MUSIC CONTROLS */}
       <div style={{ padding: "15px" }}>
         <button onClick={toggleAudio} style={{ ...buttonStyle, borderRadius: "25px" }}>
           {useLocalAudio ? (audioPlaying ? "Stop Music" : "Play Music") : showSpotify ? "Stop Spotify" : "Play Spotify"}
@@ -188,12 +170,20 @@ function App() {
       )}
 
       {/* BOOK CONTAINER */}
-      <div style={{ display: "flex", justifyContent: "center", padding: isMobile ? "10px" : "20px" }}>
-        {/* @ts-ignore - react-pageflip types can be finicky */}
+      <div 
+        style={{ 
+          display: "flex", 
+          justifyContent: "center", 
+          padding: isMobile ? "10px" : "20px",
+          touchAction: "none", // 👈 CRITICAL: Stops mobile browser from scrolling while grabbing pages
+          userSelect: "none"
+        }}
+      >
+        {/* @ts-ignore */}
         <HTMLPageFlip {...bookOptions} ref={book} onFlip={onFlip}>
           
           {/* COVER PAGE */}
-          <div className="page" style={{ position: "relative", backgroundColor: "#112240" }}>
+          <div className="page" style={{ position: "relative", backgroundColor: "#112240", overflow: "hidden" }}>
             <MotionDiv
               variants={containerVariants}
               initial="hidden"
@@ -224,7 +214,6 @@ function App() {
                 />
               ))}
             </MotionDiv>
-
             <div style={overlayStyle} />
             <div style={centerAbsolute}>
               <MotionDiv initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }}>
@@ -235,8 +224,12 @@ function App() {
 
           {/* PHOTO PAGES */}
           {albumPhotos.slice(1).map((url, i) => (
-            <div key={i} className="page" style={{ backgroundColor: "#fff" }}>
-              <img src={url} alt={`Album page ${i}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <div key={i} className="page" style={{ backgroundColor: "#fff", overflow: "hidden" }}>
+              <img 
+                src={url} 
+                alt={`Album page ${i}`} 
+                style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} 
+              />
             </div>
           ))}
 
@@ -267,96 +260,18 @@ function App() {
 }
 
 // ============================
-// STYLES
+// STYLES (Unchanged)
 // ============================
-const centerScreen: React.CSSProperties = {
-  height: "100vh",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  background: "#0A192F",
-  color: "white",
-};
-
-const setupCard: React.CSSProperties = {
-  background: "#112240",
-  padding: "40px",
-  borderRadius: "15px",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-};
-
-const inputStyle: React.CSSProperties = {
-  padding: "12px",
-  margin: "10px",
-  width: "240px",
-  borderRadius: "5px",
-  border: "1px solid #64FFDA",
-  background: "#0A192F",
-  color: "white",
-};
-
-const buttonStyle: React.CSSProperties = {
-  padding: "10px 25px",
-  background: "#FFD700",
-  color: "#0A192F",
-  border: "none",
-  fontWeight: "bold",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-};
-
-const overlayStyle: React.CSSProperties = {
-  position: "absolute",
-  inset: 0,
-  background: "rgba(0,0,0,0.5)",
-  pointerEvents: "none",
-};
-
-const centerAbsolute: React.CSSProperties = {
-  position: "absolute",
-  inset: 0,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  pointerEvents: "none",
-};
-
-const titleStyle: React.CSSProperties = {
-  fontSize: "clamp(1.5rem, 6vw, 2.5rem)",
-  color: "#FFD700",
-  textAlign: "center",
-  textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-};
-
-const endPage: React.CSSProperties = {
-  background: "#0A192F",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  height: "100%",
-};
-
-const endTitle: React.CSSProperties = {
-  fontSize: "2rem",
-  color: "#FFD700",
-};
-
-const divider: React.CSSProperties = {
-  height: "2px",
-  background: "#FFD700",
-  margin: "15px 0",
-};
-
-const navBtn: React.CSSProperties = {
-  padding: "10px 20px",
-  margin: "0 10px",
-  borderRadius: "20px",
-  background: "#112240",
-  color: "#64FFDA",
-  border: "1px solid #64FFDA",
-  cursor: "pointer",
-};
+const centerScreen: React.CSSProperties = { height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", background: "#0A192F", color: "white" };
+const setupCard: React.CSSProperties = { background: "#112240", padding: "40px", borderRadius: "15px", boxShadow: "0 10px 30px rgba(0,0,0,0.5)" };
+const inputStyle: React.CSSProperties = { padding: "12px", margin: "10px", width: "240px", borderRadius: "5px", border: "1px solid #64FFDA", background: "#0A192F", color: "white" };
+const buttonStyle: React.CSSProperties = { padding: "10px 25px", background: "#FFD700", color: "#0A192F", border: "none", fontWeight: "bold", cursor: "pointer", transition: "all 0.3s ease" };
+const overlayStyle: React.CSSProperties = { position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", pointerEvents: "none" };
+const centerAbsolute: React.CSSProperties = { position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "center", pointerEvents: "none" };
+const titleStyle: React.CSSProperties = { fontSize: "clamp(1.5rem, 6vw, 2.5rem)", color: "#FFD700", textAlign: "center", textShadow: "2px 2px 4px rgba(0,0,0,0.5)" };
+const endPage: React.CSSProperties = { background: "#0A192F", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100%" };
+const endTitle: React.CSSProperties = { fontSize: "2rem", color: "#FFD700" };
+const divider: React.CSSProperties = { height: "2px", background: "#FFD700", margin: "15px 0" };
+const navBtn: React.CSSProperties = { padding: "10px 20px", margin: "0 10px", borderRadius: "20px", background: "#112240", color: "#64FFDA", border: "1px solid #64FFDA", cursor: "pointer" };
 
 export default App;
