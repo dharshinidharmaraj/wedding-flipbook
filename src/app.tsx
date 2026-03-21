@@ -1,24 +1,22 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import HTMLPageFlip from "react-pageflip";
+// ✅ Fix: Import motion directly to resolve "initial/variants" prop errors
 import { motion, Variants } from "framer-motion";
 
 function App() {
   const book = useRef<any>(null);
+  const [activeIndex, setActiveIndex] = useState(20);
   const [page, setPage] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  
-  // 🎵 Music States
-  const [showMusic, setShowMusic] = useState(false);
-  const [playerKey, setPlayerKey] = useState(0);
-  const spotifyAssetId = "37i9dQZF1DX4H6y8vBnqXf";
 
-  // 📝 User Input States
+  const [showIntro, setShowIntro] = useState(true);
+  const [showMusic, setShowMusic] = useState(false);
   const [isSetup, setIsSetup] = useState(true);
   const [brideName, setBrideName] = useState("");
   const [groomName, setGroomName] = useState("");
-  const [activeIndex, setActiveIndex] = useState(20); // any default tile
 
-  // Handle Responsive resizing
+  const spotifyAssetId = "37i9dQZF1DX4H6y8vBnqXf";
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
@@ -29,39 +27,6 @@ function App() {
     setPage(e.data);
   }, []);
 
-  // ✅ Animation Variants
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.3, delayChildren: 0.5 },
-    },
-  };
-
-  const itemVariants: Variants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1, 
-      transition: { duration: 0.8, ease: "easeOut" } 
-    },
-  };
-
-  // Book Configuration
-  const bookOptions = {
-    width: 550, 
-    height: 733,
-    size: "stretch" as const,
-    minWidth: 315,
-    maxWidth: 1000,
-    minHeight: 400,
-    maxHeight: 1200,
-    showCover: true,
-    flippingTime: 1000,
-    mode: "landscape" as any,
-    display: "double" as any,
-  };
-
   const albumPhotos = [
     "/cover.jpg",
     "/photos/1.jpg",
@@ -70,204 +35,209 @@ function App() {
     "/photos/4.jpg",
     "/photos/5.jpg",
   ];
-  
-  // 1. Setup screen
+
+  // 🔥 Animation Variants with explicit Types
+  const containerVariants: Variants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.04,
+      },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, scale: 0.5, y: 30 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+  };
+
+  const bookOptions: any = {
+    width: 550,
+    height: 733,
+    size: "stretch",
+    usePortrait: isMobile,
+    showCover: true,
+    flippingTime: 900,
+    startPage: 0,
+    drawShadow: true,
+  };
+
+  // 🟡 SETUP SCREEN
   if (isSetup) {
     return (
-      <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#1a1a1a', color: 'white', fontFamily: 'serif' }}>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#2a2a2a', padding: '40px', borderRadius: '20px', textAlign: 'center', width: '90%', maxWidth: '400px' }}>
-          <h2 style={{ color: '#D4AF37', marginBottom: '20px' }}>Personalize Your Album</h2>
-          <input type="text" placeholder="Groom's Name" value={groomName} onChange={(e) => setGroomName(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #444', backgroundColor: '#1a1a1a', color: 'white' }} />
-          <input type="text" placeholder="Bride's Name" value={brideName} onChange={(e) => setBrideName(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #444', backgroundColor: '#1a1a1a', color: 'white' }} />
-          <button 
-            disabled={!brideName || !groomName}
-            onClick={() => setIsSetup(false)}
-            style={{ width: '100%', padding: '15px', borderRadius: '30px', border: 'none', backgroundColor: '#D4AF37', color: '#1a1a1a', fontWeight: 'bold', cursor: 'pointer', opacity: (!brideName || !groomName) ? 0.5 : 1 }}
-          >
-            Start Flipping!
+      <div style={centerScreen}>
+        <div style={setupCard}>
+          <h2 style={{ color: "#FFD700", marginBottom: "20px" }}>Personalize Your Album</h2>
+          <input placeholder="Groom Name" value={groomName} onChange={(e) => setGroomName(e.target.value)} style={inputStyle} />
+          <input placeholder="Bride Name" value={brideName} onChange={(e) => setBrideName(e.target.value)} style={inputStyle} />
+          <button onClick={() => setIsSetup(false)} disabled={!brideName || !groomName} style={buttonStyle}>
+            Enter Album
           </button>
-        </motion.div>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="app-container" style={{ textAlign: 'center', backgroundColor: '#0a0a0a', minHeight: '100vh', padding: '20px' }}>
-      
-      {/* --- 1. SPOTIFY WIDGET --- */}
-      <div className="spotify-widget" style={{ marginBottom: '20px' }}>
-        <button 
-          onClick={() => showMusic ? (setShowMusic(false), setPlayerKey(k => k + 1)) : setShowMusic(true)}
-          style={{ padding: '10px 20px', cursor: 'pointer', borderRadius: '20px', border: 'none', background: '#1DB954', color: 'white', fontWeight: 'bold' }}
-        >
-          {showMusic ? "✖ Close Music" : "🎵 Play Music"}
-        </button>
-        
-        {showMusic && (
-          <div style={{ marginTop: '15px', maxWidth: '400px', margin: '15px auto' }}>
-            <iframe
-              key={playerKey}
-              src={`https://open.spotify.com/embed/playlist/${spotifyAssetId}?utm_source=generator&theme=0`}
-              width="100%" height="80" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style={{ borderRadius: '12px' }}
-            ></iframe>
-          </div>
-        )}
-      </div>
-
-      {/* --- 2. ALBUM SECTION --- */}
-      <div className="album-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', padding: '40px 0' }}>
-        <HTMLPageFlip
-          {...bookOptions as any}
-          className="wedding-book"
-          onFlip={onFlip}
-          ref={book}
-          style={{ boxShadow: '0 0 50px rgba(0,0,0,0.8)' }}
-          useMouseEvents={true}
-        >
-          {/* --- 💍 PAGE 1: SILHOUETTE MOSAIC COVER --- */}
-          <div className="page page-cover" data-density="hard" style={{ backgroundColor: '#000' }}>
-            <div style={{ position: 'relative', height: '100%', width: '100%', overflow: 'hidden' }}>
-              
-           {/* Mosaic Background */}
-<div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(8, 1fr)",
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-  }}
->
-  {Array.from({ length: 64 }).map((_, i) => {
-    const isActive = i === activeIndex;
-
+  // 🟡 INTRO
+  if (showIntro) {
     return (
       <motion.div
-        key={i}
-        onClick={() => {
-          if (isActive) {
-            // ✅ ONLY active tile flips
-            book.current?.pageFlip()?.flipNext();
-          } else {
-            // 👉 clicking others just changes focus
-            setActiveIndex(i);
-          }
-        }}
-        whileHover={{
-          scale: isActive ? 1.15 : 1.05,
-          filter: isActive
-            ? "grayscale(0%) brightness(1.2)"
-            : "grayscale(50%)",
-        }}
-        animate={{
-          scale: isActive ? 1.2 : 1,
-          filter: isActive ? "grayscale(0%)" : "grayscale(100%)",
-          zIndex: isActive ? 20 : 1,
-        }}
-        style={{
-          backgroundImage: `url(${albumPhotos[i % albumPhotos.length]})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          border: isActive
-            ? "2px solid #D4AF37"
-            : "0.5px solid rgba(255,255,255,0.1)",
-          cursor: "pointer",
-          position: "relative",
-        }}
-      />
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 0 }}
+        transition={{ duration: 2, delay: 2 }}
+        onAnimationComplete={() => setShowIntro(false)}
+        style={centerScreen}
+      >
+        <h1 style={{ fontSize: "3rem", color: "#FFD700" }}>{groomName} & {brideName}</h1>
+        <p style={{ opacity: 0.8 }}>A story written in moments...</p>
+      </motion.div>
     );
-  })}
-</div>
-              {/* Silhouette Mask (Replace URL with your actual file) */}
-              <div style={{ 
-                position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none',
-                backgroundImage: `url('/silhouette-overlay.png')`, backgroundSize: 'cover'
-              }} />
+  }
 
-              {/* Names Overlay */}
-              <motion.div 
-                variants={containerVariants} initial="hidden" animate="visible"
-                style={{ position: 'absolute', inset: 0, zIndex: 3, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', pointerEvents: 'none' }}
-              >
-                <motion.h1 variants={itemVariants} style={{ fontSize: isMobile ? '2.5rem' : '4rem', color: '#D4AF37', fontFamily: 'serif', margin: 0, textShadow: '2px 2px 10px #000' }}>
-                  {groomName}
-                </motion.h1>
-                <motion.span variants={itemVariants} style={{ color: '#fff', fontSize: '1.5rem', fontStyle: 'italic' }}>&</motion.span>
-                <motion.h1 variants={itemVariants} style={{ fontSize: isMobile ? '2.5rem' : '4rem', color: '#D4AF37', fontFamily: 'serif', margin: 0, textShadow: '2px 2px 10px #000' }}>
-                  {brideName}
-                </motion.h1>
-                <motion.p variants={itemVariants} style={{ color: '#fff', letterSpacing: '3px', marginTop: '20px', opacity: 0.8 }}>
-                  OUR FOREVER BEGINS
-                </motion.p>
-              </motion.div>
+  return (
+    <div style={{ background: "#0A192F", minHeight: "100vh", textAlign: "center", padding: "20px" }}>
+
+      {/* 🎵 MUSIC */}
+      <button onClick={() => setShowMusic(!showMusic)} style={{ ...buttonStyle, marginBottom: "20px", borderRadius: "20px" }}>
+        {showMusic ? "Stop Music" : "Play Music"}
+      </button>
+
+      {showMusic && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: "20px" }}>
+          <iframe
+            title="Spotify"
+            src={`https://open.spotify.com/embed/playlist/${spotifyAssetId}?utm_source=generator&theme=0`}
+            width="300"
+            height="80"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            style={{ borderRadius: "12px" }}
+          />
+        </motion.div>
+      )}
+
+      {/* 📖 BOOK */}
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <HTMLPageFlip {...bookOptions} ref={book} onFlip={onFlip}>
+
+          {/* 🔥 FRONT COVER */}
+          <div className="page" data-density="hard" style={{ position: "relative", height: "100%", background: "#000", overflow: "hidden" }}>
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", height: "100%" }}
+            >
+              {Array.from({ length: 64 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  variants={itemVariants}
+                  animate={{
+                    scale: i === activeIndex ? 1.15 : 1,
+                    filter: i === activeIndex ? "grayscale(0%)" : "grayscale(100%)",
+                  }}
+                  style={{
+                    backgroundImage: `url(${albumPhotos[i % albumPhotos.length]})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center"
+                  }}
+                  onClick={() => setActiveIndex(i)}
+                />
+              ))}
+            </motion.div>
+            <div style={overlayStyle} />
+            <div style={centerAbsolute}>
+              <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.2 }} style={titleStyle}>
+                {groomName} & {brideName}
+              </motion.h1>
             </div>
           </div>
 
-          {/* --- INTERNAL PAGES --- */}
-          {albumPhotos.slice(1).map((url, index) => (
-            <div className="page" key={index} data-density="soft">
-              <div style={{ width: '100%', height: '100%', backgroundColor: '#1a1a1a' }}>
-                <img src={url} alt={`Photo ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
+          {/* PHOTO PAGES */}
+          {albumPhotos.slice(1).map((url, i) => (
+            <div key={i} className="page" style={{ background: "white" }}>
+              <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
           ))}
-{/* --- BACK COVER --- */}
-<div className="page page-back" data-density="hard" style={{ backgroundColor: '#fff' }}>
-  <div style={{ 
-    position: 'relative', 
-    height: '100%', 
-    width: '100%', 
-    display: 'flex', 
-    flexDirection: 'column', 
-    alignItems: 'center',
-    overflow: 'hidden',
-    padding: '40px 20px'
-  }}>
-    
 
+          {/* 🔥 DYNAMIC END PAGE (Inside Left) */}
+          <div className="page" style={{ background: "#0A192F", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div style={{ textAlign: "center", padding: "20px" }}>
+              <motion.h2 
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                style={{ fontFamily: "serif", fontSize: "2.5rem", color: "#FFD700", fontStyle: "italic" }}
+              >
+                Forever Together
+              </motion.h2>
+              <motion.div 
+                initial={{ width: 0 }}
+                whileInView={{ width: "60px" }}
+                style={{ height: "1px", background: "#FFD700", margin: "20px auto" }} 
+              />
+              <p style={{ color: "white", letterSpacing: "2px" }}>{groomName} & {brideName}</p>
+              <button onClick={() => book.current?.pageFlip()?.flip(0)} style={{ ...buttonStyle, marginTop: "20px", fontSize: "0.8rem" }}>
+                REPLAY STORY
+              </button>
+            </div>
+          </div>
 
-    {/* 3. Text Section */}
-    <div style={{ 
-      marginTop: 'auto', 
-      textAlign: 'center', 
-      zIndex: 6, 
-      color: '#0b0808',
-      fontFamily: 'serif'
-    }}>
-     
-   
-      
-      <p style={{ 
-        fontSize: '0.9rem', 
-        letterSpacing: '3px', 
-        marginTop: '300px',
-        color: '#666'
-      }}>
-        TOGETHER FOREVER!
-      </p>
-      <h3 style={{ 
-        fontStyle: 'italic', 
-        color: '#D4AF37', 
-        marginTop: '100px',
-        fontSize: '1.5rem'
-      }}>
-        To be continued...
-      </h3>
-    </div>
+          {/* 🔥 BACK COVER (The missing piece for closing) */}
+          <div className="page" data-density="hard" style={{ background: "#000", height: "100%" }}>
+            <div style={centerAbsolute}>
+               <div style={{ width: "40px", height: "40px", border: "1px solid #FFD700", borderRadius: "50%", opacity: 0.3 }} />
+               <p style={{ color: "white", fontSize: "0.7rem", marginTop: "10px", opacity: 0.2 }}>THE END</p>
+            </div>
+          </div>
 
-  </div>
-</div>
-</HTMLPageFlip>
-
-      {/* --- 3. CONTROLS --- */}
-      <div className="controls" style={{ marginTop: '20px' }}>
-        <button onClick={() => book.current?.pageFlip()?.flipPrev()} style={{ background: 'none', border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer' }}>⬅</button>
-        <span style={{ color: 'white', margin: '0 20px' }}>{page + 1} / {albumPhotos.length + 1}</span>
-        <button onClick={() => book.current?.pageFlip()?.flipNext()} style={{ background: 'none', border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer' }}>➡</button>
+        </HTMLPageFlip>
       </div>
-    </div>
+
+      {/* CONTROLS */}
+      <div style={{ marginTop: "20px" }}>
+        <button onClick={() => book.current?.pageFlip()?.flipPrev()} style={controlButtonStyle}>Prev</button>
+        <button onClick={() => book.current?.pageFlip()?.flipNext()} style={controlButtonStyle}>Next</button>
+      </div>
     </div>
   );
 }
+
+// 🎨 STYLES (Rectified with TS types)
+const centerScreen: React.CSSProperties = {
+  height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", background: "#0A192F", color: "white"
+};
+
+const setupCard: React.CSSProperties = {
+  background: "#112240", padding: "40px", borderRadius: "20px", textAlign: "center"
+};
+
+const inputStyle: React.CSSProperties = {
+  padding: "12px", margin: "10px", borderRadius: "8px", border: "1px solid #233554", background: "#0A192F", color: "white", display: "block", width: "250px"
+};
+
+const buttonStyle: React.CSSProperties = {
+  padding: "12px 25px", background: "#FFD700", color: "#0A192F", border: "none", fontWeight: "bold", cursor: "pointer"
+};
+
+const overlayStyle: React.CSSProperties = {
+  position: "absolute", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1
+};
+
+const centerAbsolute: React.CSSProperties = {
+  position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", zIndex: 2
+};
+
+const titleStyle: React.CSSProperties = {
+  fontSize: "2.5rem", color: "#FFD700", fontFamily: "serif"
+};
+
+const controlButtonStyle: React.CSSProperties = {
+  padding: "10px 20px", borderRadius: "5px", border: "1px solid #64FFDA", background: "transparent", color: "#64FFDA", fontWeight: "bold", cursor: "pointer", margin: "0 10px",
+};
 
 export default App;
