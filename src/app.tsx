@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import HTMLPageFlip from "react-pageflip";
-import { motion } from "framer-motion";
+import { motion, Variants, HTMLMotionProps } from "framer-motion";
 
 
-const MotionDiv: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => {
+const MotionDiv: React.FC<HTMLMotionProps<"div">> = (props) => {
   return <motion.div {...props}>{props.children}</motion.div>;
 };
 
@@ -101,7 +101,7 @@ function App() {
   };
 
   const zoomAnimation = zoomEnabled
-    ? { scale: [1, 1.1, 1], transition: { duration: 8, repeat: Infinity, repeatType: "loop", ease: "easeInOut" } }
+    ? { scale: [1, 1.1, 1], transition: { duration: 8, repeat: Infinity, repeatType: "loop" as const, ease: "easeInOut" as const } }
     : { scale: 1 };
 
   return (
@@ -127,6 +127,7 @@ function App() {
 
       {/* Fullscreen Flipbook */}
       <div style={fullscreenWrapper}>
+        {/* @ts-ignore */}
         <HTMLPageFlip
           width={dimensions.width}
           height={dimensions.height}

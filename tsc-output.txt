@@ -1,0 +1,26 @@
+﻿src/app.tsx(7,11): error TS2322: Type '{ children: ReactNode; defaultChecked?: boolean | undefined; defaultValue?: string | number | readonly string[] | undefined; suppressContentEditableWarning?: boolean | undefined; ... 273 more ...; onTransitionStartCapture?: TransitionEventHandler<...> | undefined; }' is not assignable to type 'Omit<HTMLMotionProps<"div">, "ref">'.
+  Types of property 'onAnimationStart' are incompatible.
+    Type 'AnimationEventHandler<HTMLDivElement> | undefined' is not assignable to type '((definition: AnimationDefinition) => void) | undefined'.
+      Type 'AnimationEventHandler<HTMLDivElement>' is not assignable to type '(definition: AnimationDefinition) => void'.
+        Types of parameters 'event' and 'definition' are incompatible.
+          Type 'AnimationDefinition' is not assignable to type 'AnimationEvent<HTMLDivElement>'.
+            Type 'string' is not assignable to type 'AnimationEvent<HTMLDivElement>'.
+src/app.tsx(46,28): error TS2304: Cannot find name 'Variants'.
+src/app.tsx(51,23): error TS2304: Cannot find name 'Variants'.
+src/app.tsx(78,9): error TS2322: Type '{ children: Element; initial: { opacity: number; }; animate: { opacity: number; }; transition: { duration: number; delay: number; }; onAnimationComplete: () => void; style: CSSProperties; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement>'.
+  Property 'initial' does not exist on type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement>'.
+src/app.tsx(130,10): error TS2740: Type '{ children: (Element | Element[])[]; width: number; height: number; size: "stretch"; minWidth: number; maxWidth: number; minHeight: number; maxHeight: number; showCover: true; useMouseEvents: true; flippingTime: number; ref: RefObject<...>; }' is missing the following properties from type 'IProps': className, style, startPage, drawShadow, and 9 more.
+src/app.tsx(145,24): error TS2322: Type '{ children: Element[]; variants: Variants; initial: string; animate: string; style: CSSProperties; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement>'.
+  Property 'variants' does not exist on type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement>'.
+src/app.tsx(149,19): error TS2322: Type '{ key: number; variants: Variants; animate: { scale: number[]; transition: { duration: number; repeat: number; repeatType: string; ease: string; }; } | { scale: number; transition?: undefined; }; style: { backgroundImage: `url(${string})`; backgroundSize: string; backgroundPosition: string; }; onClick: () => void; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement>'.
+  Property 'variants' does not exist on type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement>'.
+src/app.tsx(164,62): error TS2322: Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: string; ease: string; }; } | { scale: number; transition?: undefined; }' is not assignable to type 'boolean | VariantLabels | TargetAndTransition | LegacyAnimationControls | undefined'.
+  Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: string; ease: string; }; }' is not assignable to type 'boolean | VariantLabels | TargetAndTransition | LegacyAnimationControls | undefined'.
+    Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: string; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
+      Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: string; ease: string; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+        Types of property 'transition' are incompatible.
+          Type '{ duration: number; repeat: number; repeatType: string; ease: string; }' is not assignable to type 'Transition<any> | undefined'.
+            Type '{ duration: number; repeat: number; repeatType: string; ease: string; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+              Type '{ duration: number; repeat: number; repeatType: string; ease: string; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                Types of property 'repeatType' are incompatible.
+                  Type 'string' is not assignable to type 'RepeatType | undefined'.

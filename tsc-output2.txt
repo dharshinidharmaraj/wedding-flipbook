@@ -1,0 +1,20 @@
+﻿src/app.tsx(151,19): error TS2322: Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: "loop"; ease: string; }; } | { scale: number; transition?: undefined; }' is not assignable to type 'boolean | TargetAndTransition | VariantLabels | LegacyAnimationControls | undefined'.
+  Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: "loop"; ease: string; }; }' is not assignable to type 'boolean | TargetAndTransition | VariantLabels | LegacyAnimationControls | undefined'.
+    Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: "loop"; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
+      Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: "loop"; ease: string; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+        Types of property 'transition' are incompatible.
+          Type '{ duration: number; repeat: number; repeatType: "loop"; ease: string; }' is not assignable to type 'Transition<any> | undefined'.
+            Type '{ duration: number; repeat: number; repeatType: "loop"; ease: string; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+              Type '{ duration: number; repeat: number; repeatType: "loop"; ease: string; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                Types of property 'ease' are incompatible.
+                  Type 'string' is not assignable to type 'Easing | Easing[] | undefined'.
+src/app.tsx(165,62): error TS2322: Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: "loop"; ease: string; }; } | { scale: number; transition?: undefined; }' is not assignable to type 'boolean | TargetAndTransition | VariantLabels | LegacyAnimationControls | undefined'.
+  Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: "loop"; ease: string; }; }' is not assignable to type 'boolean | TargetAndTransition | VariantLabels | LegacyAnimationControls | undefined'.
+    Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: "loop"; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
+      Type '{ scale: number[]; transition: { duration: number; repeat: number; repeatType: "loop"; ease: string; }; }' is not assignable to type '{ transition?: Transition<any> | undefined; transitionEnd?: ResolvedValues$1 | undefined; }'.
+        Types of property 'transition' are incompatible.
+          Type '{ duration: number; repeat: number; repeatType: "loop"; ease: string; }' is not assignable to type 'Transition<any> | undefined'.
+            Type '{ duration: number; repeat: number; repeatType: "loop"; ease: string; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+              Type '{ duration: number; repeat: number; repeatType: "loop"; ease: string; }' is not assignable to type 'ValueAnimationTransition<any>'.
+                Types of property 'ease' are incompatible.
+                  Type 'string' is not assignable to type 'Easing | Easing[] | undefined'.
