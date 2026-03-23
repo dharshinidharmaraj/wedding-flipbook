@@ -135,11 +135,11 @@ function App() {
 
     if (screenAspect > spreadAspect) {
       // Desktop / Wide Screen: Limited by Height
-      finalPageH = H;
+      finalPageH = H * 0.9;
       finalPageW = finalPageH * PAGE_ASPECT;
     } else {
       // Mobile / Portrait Screen: Limited by Width
-      finalPageW = W / 2;
+      finalPageW = (W * 0.95) / 2;
       finalPageH = finalPageW / PAGE_ASPECT;
     }
 
@@ -171,6 +171,9 @@ function App() {
               <button onClick={() => setUseLocalAudio(!useLocalAudio)} style={{ ...pillButton, background: "#64FFDA" }}>
                 Switch Source
               </button>
+            </div>
+            {/* Zoom controls at bottom for mobile friendly */}
+            <div style={zoomControlsStyle}>
               <button onClick={() => zoomIn()} style={{ ...pillButton, background: "#FFD700" }}>
                 Zoom In (+)
               </button>
@@ -196,7 +199,7 @@ function App() {
               <HTMLPageFlip
           width={pageSizes.width}
           height={pageSizes.height}
-          size="stretch"
+          size="fixed"
           minWidth={pageSizes.width}
           maxWidth={pageSizes.width}
           minHeight={pageSizes.height}
@@ -251,9 +254,10 @@ function App() {
 // ============================
 const fullscreenWrapper: React.CSSProperties = { width: "100%", height: "100%", position: "absolute", top: 0, left: 0, display: "flex", justifyContent: "center", alignItems: "center" };
 const fullPage: React.CSSProperties = { width: "100%", height: "100%", overflow: "hidden", position: "relative", backgroundColor: "#0A192F" };
-const fullImage: React.CSSProperties = { width: "100%", height: "100%", objectFit: "cover", display: "block" };
+const fullImage: React.CSSProperties = { width: "100%", height: "100%", objectFit: "contain", display: "block" };
 const gridStyle: React.CSSProperties = { display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gridTemplateRows: "repeat(8, 1fr)", height: "100%", width: "100%" };
-const uiOverlayStyle: React.CSSProperties = { position: "absolute", top: "30px", left: "30px", zIndex: 100, display: "flex", gap: "10px" };
+const uiOverlayStyle: React.CSSProperties = { position: "absolute", top: "30px", left: "30px", zIndex: 100, display: "flex", gap: "10px", flexWrap: "wrap" };
+const zoomControlsStyle: React.CSSProperties = { position: "absolute", bottom: "30px", left: "50%", transform: "translateX(-50%)", zIndex: 100, display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center", width: "100%" };
 const titleOverlay: React.CSSProperties = { position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "center", background: "rgba(0,0,0,0.3)", pointerEvents: "none" };
 const navBtn: React.CSSProperties = { position: "absolute", top: "50%", transform: "translateY(-50%)", zIndex: 100, background: "rgba(255,255,255,0.1)", border: "none", color: "white", padding: "20px", cursor: "pointer", fontSize: "2rem", borderRadius: "50%" };
 const navBtnLeft: React.CSSProperties = { ...navBtn, left: "20px" };
