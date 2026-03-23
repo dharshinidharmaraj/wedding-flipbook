@@ -138,9 +138,10 @@ function App() {
       {/* FLIPBOOK */}
       <div style={{ display: "flex", width: "100%", height: "100%", alignItems: "center", justifyContent: "center" }}>
         {/* @ts-ignore */}
-        <HTMLPageFlip width={pageSizes.width} height={pageSizes.height} size="fixed" usePortrait={false} showCover={true} flippingTime={800} ref={book} style={{ margin: "0 auto" }}>
+        <HTMLPageFlip width={pageSizes.width} height={pageSizes.height} size="stretch" usePortrait={true} showCover={true} flippingTime={800} ref={book} style={{ margin: "0 auto" }}>
           <div style={fullPage}>
             <div style={gridStyle}>
+
               {Array.from({ length: 64 }).map((_, i) => (
                 <div key={i} style={{ backgroundImage: `url(${albumPhotos[i % albumPhotos.length]})`, backgroundSize: "cover" }} />
               ))}
