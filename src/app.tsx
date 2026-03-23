@@ -76,6 +76,18 @@ function App() {
     }
   };
 
+  const getPageSizes = () => {
+    const PAGE_ASPECT = 0.7;
+    const spreadAspect = PAGE_ASPECT * 2;
+    const screenAspect = dimensions.width / dimensions.height;
+    if (screenAspect > spreadAspect) {
+      return { height: dimensions.height, width: Math.floor(dimensions.height * PAGE_ASPECT) };
+    } else {
+      return { width: Math.floor(dimensions.width / 2), height: Math.floor((dimensions.width / 2) / PAGE_ASPECT) };
+    }
+  };
+  const pageSizes = getPageSizes();
+
   const containerVariants: Variants = {
     hidden: {},
     visible: { transition: { staggerChildren: 0.03 } }
@@ -164,70 +176,66 @@ function App() {
 
       <audio ref={audioRef} src="/music/song.mp3" loop />
 
-      {/* FLIPBOOK (NO WRAPPER HERE) */}
-      {/* @ts-ignore */}
-      <HTMLPageFlip
-        width={
-          isMobile
-            ? isLandscape
-              ? Math.floor(dimensions.width / 2)
-              : dimensions.width
-            : Math.floor(dimensions.width / 2)
-        }
-        height={isLandscape ? dimensions.height * 0.9 : dimensions.height}
-        size="stretch"
-        usePortrait={!isLandscape}
-        showCover={true}
-        flippingTime={800}
-        ref={book}
-        style={{ margin: "0 auto" }}
-      >
-        {/* COVER */}
-        <div style={fullPage}>
-          <MotionDiv
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            style={gridStyle}
-          >
-            {Array.from({ length: 64 }).map((_, i) => (
-              <MotionDiv
-                key={i}
-                variants={itemVariants}
-                style={{
-                  backgroundImage: `url(${albumPhotos[i % albumPhotos.length]
-                    })`,
-                  backgroundSize: "cover"
-                }}
-              />
-            ))}
-          </MotionDiv>
+      {/* FLIPBOOK */}
+      <div style={{ display: "flex", width: "100%", height: "100%", alignItems: "center", justifyContent: "center" }}>
+        {/* @ts-ignore */}
+        <HTMLPageFlip
+          width={pageSizes.width}
+          height={pageSizes.height}
+          size="fixed"
+          usePortrait={false}
+          showCover={true}
+          flippingTime={800}
+          ref={book}
+          style={{ margin: "0 auto" }}
+        >
+          {/* COVER */}
+          <div style={fullPage}>
+            <MotionDiv
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              style={gridStyle}
+            >
+              {Array.from({ length: 64 }).map((_, i) => (
+                <MotionDiv
+                  key={i}
+                  variants={itemVariants}
+                  style={{
+                    backgroundImage: `url(${albumPhotos[i % albumPhotos.length]
+                      })`,
+                    backgroundSize: "cover"
+                  }}
+                />
+              ))}
+            </MotionDiv>
 
-          <div style={titleOverlay}>
-            <h1 style={titleStyle}>
-              {groomName} & {brideName}
-            </h1>
+            <div style={titleOverlay}>
+              <h1 style={titleStyle}>
+                {groomName} & {brideName}
+              </h1>
+            </div>
           </div>
-        </div>
 
-        {/* IMAGE PAGES (ZOOM ONLY HERE) */}
-        {albumPhotos.slice(1).map((url, i) => (
-          <div key={i} style={fullPage}>
-            <ZoomableImage url={url} />
+          {/* IMAGE PAGES (ZOOM ONLY HERE) */}
+          {albumPhotos.slice(1).map((url, i) => (
+            <div key={i} style={fullPage}>
+              <ZoomableImage url={url} />
+            </div>
+          ))}
+
+          {/* END */}
+          <div style={endPageStyle}>
+            <h2 style={{ color: "#FFD700" }}>Forever</h2>
+            <button
+              onClick={() => book.current?.pageFlip()?.flip(0)}
+              style={buttonStyle}
+            >
+              Replay
+            </button>
           </div>
-        ))}
-
-        {/* END */}
-        <div style={endPageStyle}>
-          <h2 style={{ color: "#FFD700" }}>Forever</h2>
-          <button
-            onClick={() => book.current?.pageFlip()?.flip(0)}
-            style={buttonStyle}
-          >
-            Replay
-          </button>
-        </div>
-      </HTMLPageFlip>
+        </HTMLPageFlip>
+      </div>
     </div>
   );
 }
@@ -243,7 +251,7 @@ const mainWrapper: React.CSSProperties = {
 const fullPage: React.CSSProperties = {
   width: "100%",
   height: "100%",
-  background: "#0A192F",
+  background: "#fff",
   position: "relative"
 };
 
@@ -255,8 +263,10 @@ const fullImage: React.CSSProperties = {
 
 const gridStyle: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(60px, 1fr))",
-  height: "100%"
+  gridTemplateColumns: "repeat(8, 1fr)",
+  gridTemplateRows: "repeat(8, 1fr)",
+  height: "100%",
+  width: "100%"
 };
 
 const uiOverlayStyle: React.CSSProperties = {
@@ -273,7 +283,7 @@ const navBtn = {
   top: "50%",
   transform: "translateY(-50%)",
   zIndex: 100,
-  background: "rgba(255,255,255,0.1)",
+  background: "rgba(240, 239, 239, 0.1)",
   border: "none",
   color: "white",
   padding: "15px",
@@ -329,6 +339,7 @@ const titleOverlay: React.CSSProperties = {
 
 const endPageStyle: React.CSSProperties = {
   ...fullPage,
+  background: "#0A192F",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -338,8 +349,8 @@ const endPageStyle: React.CSSProperties = {
 const ZoomableImage = ({ url }: { url: string }) => {
   const [scale, setScale] = useState(1);
   return (
-    <TransformWrapper 
-      minScale={1} 
+    <TransformWrapper
+      minScale={1}
       maxScale={4}
       panning={{ disabled: scale <= 1 }}
       onTransformed={(ref, state) => setScale(state.scale)}
