@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import HTMLPageFlip from "react-pageflip";
 import { motion, Variants, HTMLMotionProps } from "framer-motion";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 
 const MotionDiv: React.FC<HTMLMotionProps<"div">> = (props) => {
@@ -17,7 +18,6 @@ function App() {
   const [useLocalAudio, setUseLocalAudio] = useState(true);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [showSpotify, setShowSpotify] = useState(false);
-  const [zoomEnabled, setZoomEnabled] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
@@ -130,38 +130,49 @@ function App() {
 
   const pageSizes = getPageSizes();
 
-  const zoomAnimation = zoomEnabled
-    ? { scale: [1, 1.1, 1], transition: { duration: 8, repeat: Infinity, repeatType: "loop" as const, ease: "easeInOut" as const } }
-    : { scale: 1 };
-
   return (
     <div style={{ background: "#000", width: "100vw", height: "100vh", position: "fixed", overflow: "hidden" }}>
-      
-      {/* UI Buttons */}
-      <div style={uiOverlayStyle}>
-        <button onClick={toggleAudio} style={pillButton}>
-          {useLocalAudio ? (audioPlaying ? "Stop Music" : "Play Music") : "Spotify"}
-        </button>
-        <button onClick={() => setUseLocalAudio(!useLocalAudio)} style={{ ...pillButton, background: "#64FFDA" }}>
-          Switch Source
-        </button>
-        <button onClick={() => setZoomEnabled(!zoomEnabled)} style={{ ...pillButton, background: zoomEnabled ? "#FFD700" : "#64FFDA" }}>
-          {zoomEnabled ? "Stop Zoom" : "Zoom Photos"}
-        </button>
-        <button onClick={toggleFullScreen} style={{ ...pillButton, background: "#FFD700" }}>
-          {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-        </button>
-      </div>
+      <TransformWrapper
+        initialScale={1}
+        minScale={1}
+        maxScale={4}
+        centerOnInit={true}
+        wheel={{ step: 0.1 }}
+        pinch={{ step: 5 }}
+      >
+        {({ zoomIn, zoomOut, resetTransform }) => (
+          <>
+            {/* UI Buttons */}
+            <div style={uiOverlayStyle}>
+              <button onClick={toggleAudio} style={pillButton}>
+                {useLocalAudio ? (audioPlaying ? "Stop Music" : "Play Music") : "Spotify"}
+              </button>
+              <button onClick={() => setUseLocalAudio(!useLocalAudio)} style={{ ...pillButton, background: "#64FFDA" }}>
+                Switch Source
+              </button>
+              <button onClick={() => zoomIn()} style={{ ...pillButton, background: "#FFD700" }}>
+                Zoom In (+)
+              </button>
+              <button onClick={() => zoomOut()} style={{ ...pillButton, background: "#FFD700" }}>
+                Zoom Out (-)
+              </button>
+              <button onClick={() => resetTransform()} style={{ ...pillButton, background: "#FFD700" }}>
+                Reset Zoom
+              </button>
+              <button onClick={toggleFullScreen} style={{ ...pillButton, background: "#FFD700" }}>
+                {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+              </button>
+            </div>
 
-      <button onClick={() => book.current?.pageFlip()?.flipPrev()} style={navBtnLeft}>❮</button>
-      <button onClick={() => book.current?.pageFlip()?.flipNext()} style={navBtnRight}>❯</button>
+            <button onClick={() => book.current?.pageFlip()?.flipPrev()} style={navBtnLeft}>❮</button>
+            <button onClick={() => book.current?.pageFlip()?.flipNext()} style={navBtnRight}>❯</button>
 
-      {useLocalAudio && <audio ref={audioRef} src={localAudioSrc} loop />}
+            {useLocalAudio && <audio ref={audioRef} src={localAudioSrc} loop />}
 
-      {/* Fullscreen Flipbook */}
-      <div style={fullscreenWrapper}>
-        {/* @ts-ignore */}
-        <HTMLPageFlip
+            {/* Fullscreen Flipbook */}
+            <TransformComponent wrapperStyle={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }} contentStyle={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+              {/* @ts-ignore */}
+              <HTMLPageFlip
           width={pageSizes.width}
           height={pageSizes.height}
           size="stretch"
@@ -183,7 +194,6 @@ function App() {
                 <MotionDiv
                   key={i}
                   variants={itemVariants}
-                  animate={zoomAnimation}
                   style={{ backgroundImage: `url(${albumPhotos[i % albumPhotos.length]})`, backgroundSize: "cover", backgroundPosition: "center" }}
                   onClick={() => setActiveIndex(i)}
                 />
@@ -197,7 +207,7 @@ function App() {
           {/* PHOTO PAGES */}
           {albumPhotos.slice(1).map((url, i) => (
             <div key={i} className="page" style={fullPage}>
-              <motion.img src={url} alt="" style={fullImage} animate={zoomAnimation} />
+              <motion.img src={url} alt="" style={fullImage} />
             </div>
           ))}
 
@@ -207,9 +217,12 @@ function App() {
             <button onClick={() => book.current?.pageFlip()?.flip(0)} style={buttonStyle}>Replay</button>
           </div>
         </HTMLPageFlip>
-      </div>
-    </div>
-  );
+      </TransformComponent>
+    </>
+  )}
+</TransformWrapper>
+</div>
+);
 }
 
 // ============================
