@@ -121,35 +121,7 @@ function App() {
     }
   };
 
-  const getPageSizes = () => {
-    // A standard album page aspect ratio is roughly 0.7 (width / height).
-    const PAGE_ASPECT = 0.7; 
-    const spreadAspect = PAGE_ASPECT * 2; // ~1.4 for the whole 2-page open book
-    
-    const W = dimensions.width;
-    const H = dimensions.height;
-    
-    const screenAspect = W / H;
-    let finalPageW = 0;
-    let finalPageH = 0;
 
-    if (screenAspect > spreadAspect) {
-      // Desktop / Wide Screen: Limited by Height
-      finalPageH = H * 0.9;
-      finalPageW = finalPageH * PAGE_ASPECT;
-    } else {
-      // Mobile / Portrait Screen: Limited by Width
-      finalPageW = (W * 0.95) / 2;
-      finalPageH = finalPageW / PAGE_ASPECT;
-    }
-
-    return {
-      width: Math.floor(finalPageW),
-      height: Math.floor(finalPageH)
-    };
-  };
-
-  const pageSizes = getPageSizes();
 
   return (
     <div style={{ background: "#000", width: "100vw", height: "100vh", position: "fixed", overflow: "hidden" }}>
@@ -197,13 +169,13 @@ function App() {
             <TransformComponent wrapperStyle={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0 }} contentStyle={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
               {/* @ts-ignore */}
               <HTMLPageFlip
-          width={pageSizes.width}
-          height={pageSizes.height}
-          size="fixed"
-          minWidth={pageSizes.width}
-          maxWidth={pageSizes.width}
-          minHeight={pageSizes.height}
-          maxHeight={pageSizes.height}
+          width={Math.floor(dimensions.width / 2)}
+          height={dimensions.height}
+          size="stretch"
+          minWidth={100}
+          maxWidth={4000}
+          minHeight={100}
+          maxHeight={4000}
           showCover={true}
           usePortrait={false}
           useMouseEvents={true}
