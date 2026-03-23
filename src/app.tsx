@@ -18,6 +18,7 @@ function App() {
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [showSpotify, setShowSpotify] = useState(false);
   const [zoomEnabled, setZoomEnabled] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [dimensions, setDimensions] = useState({
     width: window.innerWidth,
     height: window.innerHeight
@@ -41,6 +42,14 @@ function App() {
     const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
   const containerVariants: Variants = {
@@ -100,6 +109,27 @@ function App() {
     }
   };
 
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
+
+  const getPageSizes = () => {
+    return {
+      width: Math.floor(dimensions.width / 2),
+      height: dimensions.height
+    };
+  };
+
+  const pageSizes = getPageSizes();
+
   const zoomAnimation = zoomEnabled
     ? { scale: [1, 1.1, 1], transition: { duration: 8, repeat: Infinity, repeatType: "loop" as const, ease: "easeInOut" as const } }
     : { scale: 1 };
@@ -118,6 +148,9 @@ function App() {
         <button onClick={() => setZoomEnabled(!zoomEnabled)} style={{ ...pillButton, background: zoomEnabled ? "#FFD700" : "#64FFDA" }}>
           {zoomEnabled ? "Stop Zoom" : "Zoom Photos"}
         </button>
+        <button onClick={toggleFullScreen} style={{ ...pillButton, background: "#FFD700" }}>
+          {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+        </button>
       </div>
 
       <button onClick={() => book.current?.pageFlip()?.flipPrev()} style={navBtnLeft}>❮</button>
@@ -129,17 +162,19 @@ function App() {
       <div style={fullscreenWrapper}>
         {/* @ts-ignore */}
         <HTMLPageFlip
-          width={dimensions.width}
-          height={dimensions.height}
+          width={pageSizes.width}
+          height={pageSizes.height}
           size="stretch"
-          minWidth={dimensions.width}
-          maxWidth={dimensions.width}
-          minHeight={dimensions.height}
-          maxHeight={dimensions.height}
+          minWidth={pageSizes.width}
+          maxWidth={pageSizes.width}
+          minHeight={pageSizes.height}
+          maxHeight={pageSizes.height}
           showCover={true}
+          usePortrait={false}
           useMouseEvents={true}
           flippingTime={1000}
           ref={book}
+          style={{ margin: "0 auto" }}
         >
           {/* COVER GRID */}
           <div className="page" style={fullPage}>
@@ -180,9 +215,9 @@ function App() {
 // ============================
 // STYLES
 // ============================
-const fullscreenWrapper: React.CSSProperties = { width: "100%", height: "100%", position: "absolute", top: 0, left: 0 };
+const fullscreenWrapper: React.CSSProperties = { width: "100%", height: "100%", position: "absolute", top: 0, left: 0, display: "flex", justifyContent: "center", alignItems: "center" };
 const fullPage: React.CSSProperties = { width: "100%", height: "100%", overflow: "hidden", position: "relative", backgroundColor: "#0A192F" };
-const fullImage: React.CSSProperties = { width: "100%", height: "100%", objectFit: "contain", display: "block" };
+const fullImage: React.CSSProperties = { width: "100%", height: "100%", objectFit: "cover", display: "block" };
 const gridStyle: React.CSSProperties = { display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gridTemplateRows: "repeat(8, 1fr)", height: "100%", width: "100%" };
 const uiOverlayStyle: React.CSSProperties = { position: "absolute", top: "30px", left: "30px", zIndex: 100, display: "flex", gap: "10px" };
 const titleOverlay: React.CSSProperties = { position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "center", background: "rgba(0,0,0,0.3)", pointerEvents: "none" };
