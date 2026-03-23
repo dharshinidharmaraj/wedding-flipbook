@@ -122,9 +122,30 @@ function App() {
   };
 
   const getPageSizes = () => {
+    // A standard album page aspect ratio is roughly 0.7 (width / height).
+    const PAGE_ASPECT = 0.7; 
+    const spreadAspect = PAGE_ASPECT * 2; // ~1.4 for the whole 2-page open book
+    
+    const W = dimensions.width;
+    const H = dimensions.height;
+    
+    const screenAspect = W / H;
+    let finalPageW = 0;
+    let finalPageH = 0;
+
+    if (screenAspect > spreadAspect) {
+      // Desktop / Wide Screen: Limited by Height
+      finalPageH = H;
+      finalPageW = finalPageH * PAGE_ASPECT;
+    } else {
+      // Mobile / Portrait Screen: Limited by Width
+      finalPageW = W / 2;
+      finalPageH = finalPageW / PAGE_ASPECT;
+    }
+
     return {
-      width: Math.floor(dimensions.width / 2),
-      height: dimensions.height
+      width: Math.floor(finalPageW),
+      height: Math.floor(finalPageH)
     };
   };
 
