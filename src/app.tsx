@@ -16,7 +16,7 @@ function App() {
   const [brideName, setBrideName] = useState("");
   const [groomName, setGroomName] = useState("");
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(true);
 
   // New State: Choice between 'local' and 'spotify'
   const [musicSource, setMusicSource] = useState<"local" | "spotify">("local");
@@ -182,13 +182,42 @@ const endPageStyle: React.CSSProperties = { ...fullPage, background: "#fff", dis
 
 const ZoomableImage = ({ url }: { url: string }) => {
   const [scale, setScale] = useState(1);
+
   return (
-    <TransformWrapper minScale={1} maxScale={4} panning={{ disabled: scale <= 1 }} onTransformed={(ref, state) => setScale(state.scale)}>
-      <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%" }}>
-        <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+    <TransformWrapper
+      minScale={1}
+      maxScale={4}
+      panning={{ disabled: scale <= 1 }}
+      onTransformed={(ref, state) => setScale(state.scale)}
+    >
+      <TransformComponent
+        wrapperStyle={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          overflow: "hidden"
+        }}
+        contentStyle={{
+          width: "100%",
+          height: "100%"
+        }}
+      >
+        <img
+          src={url}
+          alt=""
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover", // 🔥 KEY FIX
+          }}
+        />
       </TransformComponent>
     </TransformWrapper>
   );
 };
+
+
 
 export default App;
