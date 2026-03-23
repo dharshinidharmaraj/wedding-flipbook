@@ -180,44 +180,29 @@ const titleStyle: React.CSSProperties = { color: "#FFD700", fontSize: "clamp(2re
 const titleOverlay: React.CSSProperties = { position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "center" };
 const endPageStyle: React.CSSProperties = { ...fullPage, background: "#fff", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" };
 
-const ZoomableImage = ({ url }: { url: string }) => {
-  const [scale, setScale] = useState(1);
+<div style={{
+  ...fullPage,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  flexDirection: "column"
+}}>
+  <h2 style={{ color: "#000", marginBottom: "20px" }}>Forever</h2>
 
-  return (
-    <TransformWrapper
-      minScale={1}
-      maxScale={4}
-      panning={{ disabled: scale <= 1 }}
-      onTransformed={(ref, state) => setScale(state.scale)}
-    >
-      <TransformComponent
-        wrapperStyle={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          overflow: "hidden"
-        }}
-        contentStyle={{
-          width: "100%",
-          height: "100%"
-        }}
-      >
-        <img
-          src={url}
-          alt=""
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover", // 🔥 KEY FIX
-          }}
-        />
-      </TransformComponent>
-    </TransformWrapper>
-  );
-};
-
-
+  <button
+    onClick={() => book.current?.pageFlip()?.flip(0)}
+    style={{
+      padding: "12px 20px",
+      background: "#FFD700",
+      border: "none",
+      cursor: "pointer",
+      fontWeight: "bold",
+      borderRadius: "25px",
+      fontSize: "16px"
+    }}
+  >
+    Replay
+  </button>
+</div>
 
 export default App;
