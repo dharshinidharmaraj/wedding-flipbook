@@ -16,9 +16,9 @@ function App() {
   const [brideName, setBrideName] = useState("");
   const [groomName, setGroomName] = useState("");
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // New State: Choice between 'local' and 'spotify'
+  //  Choice between 'local' and 'spotify'
   const [musicSource, setMusicSource] = useState<"local" | "spotify">("local");
 
   const [dimensions, setDimensions] = useState({
@@ -161,7 +161,7 @@ function App() {
   );
 }
 
-// ===== STYLES =====
+// STYLES
 const mainWrapper: React.CSSProperties = { width: "100vw", height: "100vh", background: "#ffffff", overflow: "hidden" };
 const fullPage: React.CSSProperties = { width: "100%", height: "100%", background: "#fff", position: "relative" };
 const gridStyle: React.CSSProperties = { display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gridTemplateRows: "repeat(8, 1fr)", height: "100%", width: "100%" };
@@ -180,29 +180,41 @@ const titleStyle: React.CSSProperties = { color: "#FFD700", fontSize: "clamp(2re
 const titleOverlay: React.CSSProperties = { position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "center" };
 const endPageStyle: React.CSSProperties = { ...fullPage, background: "#fff", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" };
 
-<div style={{
-  ...fullPage,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  flexDirection: "column"
-}}>
-  <h2 style={{ color: "#000", marginBottom: "20px" }}>Forever</h2>
+const ZoomableImage = ({ url }: { url: string }) => {
+  const [scale, setScale] = useState(1);
 
-  <button
-    onClick={() => book.current?.pageFlip()?.flip(0)}
-    style={{
-      padding: "12px 20px",
-      background: "#FFD700",
-      border: "none",
-      cursor: "pointer",
-      fontWeight: "bold",
-      borderRadius: "25px",
-      fontSize: "16px"
-    }}
-  >
-    Replay
-  </button>
-</div>
-
+  return (
+    <TransformWrapper
+      minScale={1}
+      maxScale={4}
+      panning={{ disabled: scale <= 1 }}
+      onTransformed={(ref, state) => setScale(state.scale)}
+    >
+      <TransformComponent
+        wrapperStyle={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          overflow: "hidden"
+        }}
+        contentStyle={{
+          width: "100%",
+          height: "100%"
+        }}
+      >
+        <img
+          src={url}
+          alt=""
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+      </TransformComponent>
+    </TransformWrapper>
+  );
+};
 export default App;

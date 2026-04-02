@@ -1,7 +1,7 @@
 :root {
   --primary-maroon: #4a0606;
   --gold-accent: #d4af37;
-  --page-bg: #fffdfa; /* Paper feel */
+  --page-bg: #fffdfa; 
   --shadow-color: rgba(0, 0, 0, 0.4);
 }
 
@@ -64,7 +64,7 @@ body {
 .full-page-img {
  width: 100%;
   height: 100%;
-  object-fit: cover; /* This makes the photo fill the page without distortion */
+  object-fit: cover; 
   pointer-events: none;;
 }
 
